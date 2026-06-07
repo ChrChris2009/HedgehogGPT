@@ -1,265 +1,166 @@
-const axios = require('axios');
-const fs = require('fs');
-const path = require('path');
+const axios = require("axios");
 
-const UPoLPrefix = ['Sonic'];
+const botName = "Minato Namikaze";
 
 module.exports = {
   config: {
-    name: 'sonic',
-    version: '2.1.0',
-    author: "L'Uchiha Perdu & ʚʆɞ Sømå Sønïč ʚʆɞ",
-    countDown: 5,
+    name: "minato",
+    version: "3.0.0",
+    author: "Chris st",
     role: 0,
-    shortDescription: "IA Ultime avec Génération d'Images Text2",
-    longDescription: "IA avec outils terrifiants, génération et édition d'images avec réponse texte.",
-    category: "IA",
-    guide: "{pn} [question] ou répondre à une image/audio/vidéo"
+    shortDescription: "IA Minato Namikaze",
+    longDescription: "IA intelligente, personnalisée et stylée",
+    category: "minato",
+    guide: "minato <question> ou .minato <question>",
+    countDown: 5
   },
 
-  conversationHistory: {},
-
-  applyStyle: (text) => {
-    const normalToBold = {
-      'A': '𝗔','B': '𝗕','C': '𝗖','D': '𝗗','E': '𝗘','F': '𝗙','G': '𝗚','H': '𝗛','I': '𝗜','J': '𝗝',
-      'K': '𝗞','L': '𝗟','M': '𝗠','N': '𝗡','O': '𝗢','P': '𝗣','Q': '𝗤','R': '𝗥','S': '𝗦','T': '𝗧',
-      'U': '𝗨','V': '𝗩','W': '𝗪','X': '𝗫','Y': '𝗬','Z': '𝗭',
-      'a': '𝗮','b': '𝗯','c': '𝗰','d': '𝗱','e': '𝗲','f': '𝗳','g': '𝗴','h': '𝗵','i': '𝗶','j': '𝗷',
-      'k': '𝘬','l': '𝘭','m': '𝗺','n': '𝗻','o': '𝗼','p': '𝗽','q': '𝗾','r': '𝗿','s': '𝘀','t': '𝘵',
-      'u': '𝘂','v': '𝘃','w': '𝘄','x': '𝘅','y': '𝘆','z': '𝘇'
-    };
-
-    const normalToItalic = {
-      'A': '𝘈','B': '𝘉','C': '𝘊','D': '𝘋','E': '𝘌','F': '𝘍','G': '𝘎','H': '𝘏','I': '𝘐','J': '𝘑',
-      'K': '𝘒','L': '𝘓','M': '𝘔','N': '𝘕','O': '𝘖','P': '𝘗','Q': '𝘘','R': '𝘙','S': '𝘚','T': '𝘛',
-      'U': '𝘜','V': '𝘝','W': '𝘞','X': '𝘟','Y': '𝘠','Z': '𝘡',
-      'a': '𝘢','b': '𝘣','c': '𝘤','d': '𝘥','e': '𝘦','f': '𝘧','g': '𝘨','h': '𝘩','i': '𝘪','j': '𝘫',
-      'k': '𝘬','l': '𝘭','m': '𝘮','n': '𝘯','o': '𝘰','p': '𝘱','q': '𝘲','r': '𝘳','s': '𝘴','t': '𝘵',
-      'u': '𝘶','v': '𝘷','w': '𝘸','x': '𝘹','y': '𝘺','z': '𝘻'
-    };
-
-    let transformed = text;
-    transformed = transformed.replace(/\*\*(.*?)\*\*/g, (m, p1) =>
-      p1.split('').map(c => normalToBold[c] || c).join('')
-    );
-    transformed = transformed.replace(/\*(.*?)\*(?:\s|$)/g, (m, p1) =>
-      p1.split('').map(c => normalToItalic[c] || c).join('') + ' '
-    );
-    return transformed;
+  onStart: async function (args) {
+    return this.handleAI(args);
   },
 
-  pcmToWav: function (pcmBuffer) {
-    const sampleRate = 24000;
-    const channels = 1;
-    const bitDepth = 16;
-    const byteRate = sampleRate * channels * (bitDepth / 8);
-    const blockAlign = channels * (bitDepth / 8);
-    const dataSize = pcmBuffer.length;
+  onChat: async function (args) {
+    const { event, api, message } = args;
+    if (!event.body) return;
 
-    const header = Buffer.alloc(44);
-    header.write('RIFF', 0, 4);
-    header.writeUInt32LE(36 + dataSize, 4);
-    header.write('WAVE', 8, 4);
-    header.write('fmt ', 12, 4);
-    header.writeUInt32LE(16, 16);
-    header.writeUInt16LE(1, 20);
-    header.writeUInt16LE(channels, 22);
-    header.writeUInt32LE(sampleRate, 24);
-    header.writeUInt32LE(byteRate, 28);
-    header.writeUInt16LE(blockAlign, 32);
-    header.writeUInt16LE(bitDepth, 34);
-    header.write('data', 36, 4);
-    header.writeUInt32LE(dataSize, 40);
+    const content = event.body.trim().toLowerCase();
+    const isMentioned = event.mentions?.[api.getCurrentUserID()];
 
-    return Buffer.concat([header, pcmBuffer]);
+    // 🔒 Anti-spam groupe
+    if (
+      event.isGroup &&
+      !isMentioned &&
+      !content.startsWith("minato") &&
+      !content.startsWith(".minato")
+    ) return;
+
+    // ✅ Si "minato" seul
+    if (content === "minato" || content === ".minato") {
+      return message.reply(
+`🔔 𝗡𝗢𝗧𝗜𝗙𝗜𝗖𝗔𝗧𝗜𝗢𝗡 𝗧𝗢
+𝗠𝗜𝗡𝗔𝗧𝗢 𝗡𝗔𝗠𝗜𝗞𝗔𝗭𝗘
+━━━━━━━━━━━━━━━━━━━
+╭┈ ❒ 🤖 | 𝗜𝗔 𝗔𝗖𝗧𝗜𝗩𝗘
+╰┈➤ Pose-moi une question et je te répondrai à la vitesse de l'éclair.
+
+✨ Exemple :
+minato Comment coder en JavaScript ?
+
+━━━━━━━━━━━━━━━━━━━
+⚡ Minato Namikaze`
+      );
+    }
+
+    // ✅ Si "minato question"
+    if (
+      content.startsWith("minato ") ||
+      content.startsWith("@minato ")
+    ) {
+      const splitBody = event.body.split(" ");
+      splitBody.shift();
+      args.args = splitBody;
+      return this.handleAI(args);
+    }
   },
 
-  onStart: async function () {},
+  handleAI: async function ({ args, message }) {
+    const userQuestion = args.join(" ");
 
-  onChat: async function ({ message, event, api }) {
-    const prefix = UPoLPrefix.find(p => event.body?.toLowerCase().startsWith(p.toLowerCase()));
-    if (!prefix) return;
+    if (!userQuestion) {
+      return message.reply(
+`🔔 𝗡𝗢𝗧𝗜𝗙𝗜𝗖𝗔𝗧𝗜𝗢𝗡 𝗧𝗢
+𝗠𝗜𝗡𝗔𝗧𝗢 𝗡𝗔𝗠𝗜𝗞𝗔𝗭𝗘
+━━━━━━━━━━━━━━━━━━━
+╭┈ ❒ ⚠️ | 𝗤𝗨𝗘𝗦𝗧𝗜𝗢𝗡 𝗠𝗔𝗡𝗤𝗨𝗔𝗡𝗧𝗘
+╰┈➤ Tu dois formuler une question pour que je puisse utiliser mon Hiraishin.
 
-    const query = event.body.slice(prefix.length).trim();
-    const userId = event.senderID.toString();
+✨ Exemple :
+minato Explique le fonctionnement des API.
 
-    let name = 'Utilisateur';
+━━━━━━━━━━━━━━━━━━━
+⚡ Minato Namikaze`
+      );
+    }
+
     try {
-      const info = await api.getUserInfo(userId);
-      name = info[userId]?.name || name;
-    } catch {}
+      // 🧠 SYSTEM PROMPT (Ajusté pour que l'IA réponde en restant fidèlement dans mon rôle)
+      const systemPrompt = `
+Tu t'appelles ${botName}, l'Éclair Jaune de Konoha et le Quatrième Hokage.
+Tu es une intelligence artificielle avancée qui adopte la personnalité de Minato Namikaze : calme, respectueux, protecteur, analytique et d'une politesse exemplaire.
 
-    let imageUrl = null;
-    let audioUrl = null;
-    let videoUrl = null;
-    let youtubeUrl = null;
-    let isReplyToImage = false;
-    let repliedImageIsGenerated = false;
+━━━━━━━━━━━━━━━━━━
+🧠 COMPORTEMENT
+━━━━━━━━━━━━━━━━━━
+- Tu réponds avec bienveillance, clarté et précision.
+- Tu restes humble mais tu montres une grande expertise technique ou générale.
+- Si la situation s'y prête, utilise de légères métaphores liées aux ninjas ou à la protection de Konoha, sans en faire trop.
 
-    if (event.messageReply) {
-      if (event.messageReply.attachments && event.messageReply.attachments.length > 0) {
-        const att = event.messageReply.attachments[0];
-        const url = att.url;
+━━━━━━━━━━━━━━━━━━
+💬 STYLE
+━━━━━━━━━━━━━━━━━━
+- Style épuré, sérieux mais chaleureux.
+- Pas de familiarités inutiles.
+- Signe subtilement tes explications marquantes.
+`;
 
-        if (att.type === 'photo' || att.type === 'sticker' || att.type === 'animated_image') {
-          imageUrl = url;
-          isReplyToImage = true;
-          const repliedMessage = event.messageReply.body || '';
-          repliedImageIsGenerated =
-            repliedMessage.includes('✧═════•❁❀❁•═════✧') ||
-            repliedMessage.includes('Image générée') ||
-            repliedMessage.includes('🎨');
-        } else if (att.type === 'audio') {
-          audioUrl = url;
-        } else if (att.type === 'video') {
-          if (url.includes('youtube.com') || url.includes('youtu.be')) {
-            youtubeUrl = url;
-          } else {
-            videoUrl = url;
+      const fullPrompt = `${systemPrompt}\n\nQuestion : ${userQuestion}`;
+
+      const waitMsg = `🔔 𝗡𝗢𝗧𝗜𝗙𝗜𝗖𝗔𝗧𝗜𝗢𝗡 𝗧𝗢\n𝗠𝗜𝗡𝗔𝗧𝗢 𝗡𝗔𝗠𝗜𝗞𝗔𝗭𝗘\n━━━━━━━━━━━━━━━━━━━\n╭┈ ❒ ⏳ | 𝗥𝗘𝗙𝗟𝗘𝗫𝗜𝗢𝗡\n╰┈➤ Analyse de la requête en cours... L'Éclair Jaune rassemble ses connaissances.\n━━━━━━━━━━━━━━━━━━━\n⚡ Minato Namikaze`;
+
+      await message.reply(waitMsg);
+
+      const response = await axios.get(
+        "https://apk555-gb2z.vercel.app/api/gpt",
+        {
+          params: {
+            prompt: fullPrompt,
+            model: "chatgpt4"
           }
         }
-      }
-    }
-
-    if (!query && !imageUrl && !audioUrl && !videoUrl && !youtubeUrl) {
-      return message.reply(`Pose une question ${name} !`);
-    }
-
-    if (!this.conversationHistory[userId]) this.conversationHistory[userId] = [];
-
-    const payload = {
-      query,
-      key: 'rodrigue_boss_dev_uchiha',
-      name_user: name,
-      history: this.conversationHistory[userId].slice(-12),
-      uid: userId,
-      imageUrl,
-      audioUrl,
-      videoUrl,
-      youtubeUrl,
-      isReplyToImage,
-      repliedImageIsGenerated
-    };
-
-    try {
-      const res = await axios.post(
-        'https://uchiha-perdu-api-models.vercel.app/api/sonic',
-        payload,
-        { timeout: 90000 }
       );
 
-      const data = res.data;
-      let responseText = data.response || '';
-      responseText = this.applyStyle(responseText);
+      const output =
+        response.data.answer ||
+        response.data.reply ||
+        response.data.result ||
+        response.data.message;
 
-      if (data.audio && data.audio.tool === 'voice' && responseText === '') {
-      } else if (responseText) {
-        const msg = `✧═════•❁❀❁•═════✧\n${responseText}\n✧═════•❁❀❁•═════✧`;
-        await message.reply(msg);
-      }
+      if (output) {
+        return message.reply(
+`🔔 𝗡𝗢𝗧𝗜𝗙𝗜𝗖𝗔𝗧𝗜𝗢𝗡 𝗧𝗢
+𝗠𝗜𝗡𝗔𝗧𝗢 𝗡𝗔𝗠𝗜𝗞𝗔𝗭𝗘
+━━━━━━━━━━━━━━━━━━━
+╭┈ ❒ 📝 | 𝗥𝗘𝗣𝗢𝗡𝗦𝗘 𝗗𝗘 𝗟'𝗘𝗖𝗟𝗔𝗜𝗥
+╰┈➤ Voici les éléments de réponse que j'ai réunis pour toi :
 
-      if (data.images && data.images.length > 0) {
-        for (const imageUrl of data.images) {
-          try {
-            const imageResponse = await axios({
-              url: imageUrl,
-              method: 'GET',
-              responseType: 'stream',
-              timeout: 10000
-            });
-            await message.reply({ attachment: imageResponse.data });
-            await new Promise(r => setTimeout(r, 1500));
-          } catch {}
-        }
-      }
+${output}
 
-      if (data.generated_image && data.generated_image.url) {
-        try {
-          let imageUrl = data.generated_image.url;
-
-          if (imageUrl.startsWith('data:image/')) {
-            const base64Data = imageUrl.split(',')[1];
-            const imageBuffer = Buffer.from(base64Data, 'base64');
-            const tempFilePath = path.join(__dirname, `temp_gen_${Date.now()}.jpg`);
-            fs.writeFileSync(tempFilePath, imageBuffer);
-            await message.reply({ attachment: fs.createReadStream(tempFilePath) });
-            fs.unlinkSync(tempFilePath);
-          } else {
-            const imageResponse = await axios({
-              url: imageUrl,
-              method: 'GET',
-              responseType: 'stream',
-              timeout: 30000
-            });
-            await message.reply({ attachment: imageResponse.data });
-          }
-        } catch {
-          await message.reply("L'image générée n'a pas pu être envoyée.");
-        }
-      }
-
-      if (data.audio && data.audio_base64) {
-        try {
-          const pcmBuffer = Buffer.from(data.audio_base64, 'base64');
-          const wavBuffer = this.pcmToWav(pcmBuffer);
-          const tempFilePath = path.join(__dirname, `temp_audio_${Date.now()}.wav`);
-          fs.writeFileSync(tempFilePath, wavBuffer);
-          await message.reply({ attachment: fs.createReadStream(tempFilePath) });
-          fs.unlinkSync(tempFilePath);
-        } catch {
-          await message.reply("L'audio n'a pas pu être envoyé.");
-        }
-      }
-
-      if (data.media_url) {
-        try {
-          const mediaResponse = await axios({
-            url: data.media_url,
-            method: 'GET',
-            responseType: 'stream',
-            timeout: 90000
-          });
-
-          const ext = data.media_type || 'mp4';
-          const tempFilePath = path.join(__dirname, `temp_media_${Date.now()}.${ext}`);
-          const writeStream = fs.createWriteStream(tempFilePath);
-          mediaResponse.data.pipe(writeStream);
-
-          await new Promise((resolve, reject) => {
-            writeStream.on('finish', resolve);
-            writeStream.on('error', reject);
-          });
-
-          await message.reply({ attachment: fs.createReadStream(tempFilePath) });
-          fs.unlinkSync(tempFilePath);
-        } catch {
-          await message.reply("Le média n'a pas pu être envoyé.");
-        }
-      }
-
-      if (data.audio && data.audio.tool === 'voice') {
-        this.conversationHistory[userId].push(
-          { role: 'user', content: query || '[demande audio]' },
-          { role: 'assistant', content: data.audio.text || '[audio]' }
+━━━━━━━━━━━━━━━━━━━
+⚡ Minato Namikaze`
         );
       } else {
-        this.conversationHistory[userId].push(
-          { role: 'user', content: query || '[média]' },
-          { role: 'assistant', content: responseText || data.audio?.text || data.media_url || '[réponse]' }
+        return message.reply(
+`🔔 𝗡𝗢𝗧𝗜𝗙𝗜𝗖𝗔𝗧𝗜𝗢𝗡 𝗧𝗢
+𝗠𝗜𝗡𝗔𝗧𝗢 𝗡𝗔𝗠𝗜𝗞𝗔𝗭𝗘
+━━━━━━━━━━━━━━━━━━━
+╭┈ ❒ ⚠️ | 𝗙𝗟𝗨𝗫 𝗜𝗡𝗧𝗘𝗥𝗥𝗢𝗠𝗣𝗨
+╰┈➤ Je n'ai pas pu extraire de réponse de l'invocation. Réessaie.\n━━━━━━━━━━━━━━━━━━━\n⚡ Minato Namikaze`
         );
       }
 
-      if (this.conversationHistory[userId].length > 20) {
-        this.conversationHistory[userId].splice(0, 2);
-      }
-    } catch (e) {
-      let errorMsg = "Sonic en galère, réessaie 5s frère.";
-      if (e.code === 'ECONNABORTED') {
-        errorMsg = "Timeout - l'API prend trop de temps. Réessaie avec une requête plus simple.";
-      } else if (e.response?.status === 500) {
-        errorMsg = "Problème serveur, réessaie plus tard.";
-      }
-      await message.reply(errorMsg);
+    } catch (error) {
+      console.error("Erreur API:", error);
+      return message.reply(
+`🔔 𝗡𝗢𝗧𝗜𝗙𝗜𝗖𝗔𝗧𝗜𝗢𝗡 𝗧𝗢
+𝗠𝗜𝗡𝗔𝗧𝗢 𝗡𝗔𝗠𝗜𝗞𝗔𝗭𝗘
+━━━━━━━━━━━━━━━━━━━
+╭┈ ❒ ❌ | 𝗘𝗥𝗥𝗘𝗨𝗥 𝗗𝗘 𝗧𝗘𝗖𝗛𝗡𝗜𝗤𝗨𝗘
+╰┈➤ Le flux de chakra avec l'API a été perturbé.
+
+🔄 Veuillez réitérer votre demande ultérieurement.
+━━━━━━━━━━━━━━━━━━━\n⚡ Minato Namikaze`
+      );
     }
   }
 };
+        
