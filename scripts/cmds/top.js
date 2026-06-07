@@ -1,243 +1,173 @@
-const fs = require("fs");
-const { createCanvas } = require("canvas");
-const axios = require("axios");
-
-const CASH_API_URL = "https://cash-api-five.vercel.app/api/cash";
-const CONVERT_API_URL = "https://numbers-conversion.vercel.app/api/format";
-
-function toBold(text) {
-    const boldMap = {
-        'A': '𝐀', 'B': '𝐁', 'C': '𝐂', 'D': '𝐃', 'E': '𝐄', 'F': '𝐅',
-        'G': '𝐆', 'H': '𝐇', 'I': '𝐈', 'J': '𝐉', 'K': '𝐊', 'L': '𝐋',
-        'M': '𝐌', 'N': '𝐍', 'O': '𝐎', 'P': '𝐏', 'Q': '𝐐', 'R': '𝐑',
-        'S': '𝐒', 'T': '𝐓', 'U': '𝐔', 'V': '𝐕', 'W': '𝐖', 'X': '𝐗',
-        'Y': '𝐘', 'Z': '𝐙',
-        'a': '𝐚', 'b': '𝐛', 'c': '𝐜', 'd': '𝐝', 'e': '𝐞', 'f': '𝐟',
-        'g': '𝐠', 'h': '𝐡', 'i': '𝐢', 'j': '𝐣', 'k': '𝐤', 'l': '𝐥',
-        'm': '𝐦', 'n': '𝐧', 'o': '𝐨', 'p': '𝐩', 'q': '𝐪', 'r': '𝐫',
-        's': '𝐬', 't': '𝐭', 'u': '𝐮', 'v': '𝐯', 'w': '𝐰', 'x': '𝐱',
-        'y': '𝐲', 'z': '𝐳',
-        '0': '𝟎', '1': '𝟏', '2': '𝟐', '3': '𝟑', '4': '𝟒', '5': '𝟓',
-        '6': '𝟔', '7': '𝟕', '8': '𝟖', '9': '𝟗'
-    };
-    return text.split('').map(char => boldMap[char] || char).join('');
-}
-
-async function getAllUsersCash() {
-    try {
-        const response = await axios.get(`${CASH_API_URL}/top?limit=50`);
-        if (response.data && response.data.success && Array.isArray(response.data.data)) {
-            return response.data.data;
-        }
-    } catch (error) {
-        console.error("Cash API Error:", error.message);
-    }
-    return [];
-}
-
-async function formatNumberWithAPI(num) {
-    try {
-        const response = await axios.get(`${CONVERT_API_URL}?number=${num}`);
-        if (response.data && response.data.success) return response.data.formatted;
-    } catch (error) {}
-    if (num === null || num === undefined || isNaN(num)) return "0";
-    const suffixes = [
-        { value: 1e33, suffix: 'd' }, { value: 1e30, suffix: 'n' }, { value: 1e27, suffix: 'o' },
-        { value: 1e24, suffix: 'S' }, { value: 1e21, suffix: 's' }, { value: 1e18, suffix: 'Q' },
-        { value: 1e15, suffix: 'q' }, { value: 1e12, suffix: 't' }, { value: 1e9, suffix: 'b' },
-        { value: 1e6, suffix: 'm' }, { value: 1e3, suffix: 'k' }
-    ];
-    const absNum = Math.abs(num);
-    const sign = num < 0 ? "-" : "";
-    for (const s of suffixes) {
-        if (absNum >= s.value) {
-            return sign + (absNum / s.value).toFixed(1).replace(/\.0$/, '') + s.suffix;
-        }
-    }
-    return sign + absNum.toString();
-}
-
-function formatNumber(num) {
-    if (num === null || num === undefined || isNaN(num)) return "0";
-    const suffixes = [
-        { value: 1e33, suffix: 'd' }, { value: 1e30, suffix: 'n' }, { value: 1e27, suffix: 'o' },
-        { value: 1e24, suffix: 'S' }, { value: 1e21, suffix: 's' }, { value: 1e18, suffix: 'Q' },
-        { value: 1e15, suffix: 'q' }, { value: 1e12, suffix: 't' }, { value: 1e9, suffix: 'b' },
-        { value: 1e6, suffix: 'm' }, { value: 1e3, suffix: 'k' }
-    ];
-    const absNum = Math.abs(num);
-    const sign = num < 0 ? "-" : "";
-    for (const s of suffixes) {
-        if (absNum >= s.value) {
-            return sign + (absNum / s.value).toFixed(1).replace(/\.0$/, '') + s.suffix;
-        }
-    }
-    return sign + absNum.toString();
-}
-
-async function generateTopImage(users, page, totalPages) {
-    const canvas = createCanvas(600, 420);
-    const ctx = canvas.getContext("2d");
-
-    const gradient = ctx.createLinearGradient(0, 0, 600, 420);
-    gradient.addColorStop(0, "#1a1a2e");
-    gradient.addColorStop(0.5, "#16213e");
-    gradient.addColorStop(1, "#0f3460");
-    ctx.fillStyle = gradient;
-    ctx.fillRect(0, 0, 600, 420);
-
-    ctx.strokeStyle = "#d4af37";
-    ctx.lineWidth = 3;
-    ctx.strokeRect(10, 10, 580, 400);
-
-    ctx.fillStyle = "#d4af37";
-    ctx.font = "bold 22px 'Courier New'";
-    ctx.fillText("UCHIWA BANK", 30, 55);
-    ctx.font = "11px 'Courier New'";
-    ctx.fillStyle = "#aaa";
-    ctx.fillText("PREMIUM CLASSEMENT", 30, 75);
-
-    ctx.fillStyle = "#ffd700";
-    ctx.font = "bold 20px 'Courier New'";
-    ctx.fillText("TOP 50 - LES PLUS RICHES", 150, 55);
-
-    ctx.fillStyle = "#d4af37";
-    ctx.fillRect(480, 35, 45, 30);
-    ctx.fillStyle = "#b8960c";
-    ctx.fillRect(484, 39, 37, 22);
-
-    ctx.fillStyle = "#fff";
-    ctx.font = "bold 13px 'Courier New'";
-    ctx.fillText("RANG", 30, 115);
-    ctx.fillText("NOM", 100, 115);
-    ctx.textAlign = "right";
-    ctx.fillText("MONTANT", 560, 115);
-    ctx.textAlign = "left";
-
-    ctx.fillStyle = "#2c2c2c";
-    ctx.fillRect(20, 125, 560, 2);
-
-    let y = 145;
-    for (let i = 0; i < users.length; i++) {
-        const user = users[i];
-        const rank = (page - 1) * 10 + i + 1;
-        const name = user.name || `User_${String(user.userId).slice(-5)}`;
-        const cash = user.formattedCash || formatNumber(user.cash || 0);
-
-        if (rank === 1) ctx.fillStyle = "#ffd700";
-        else if (rank === 2) ctx.fillStyle = "#c0c0c0";
-        else if (rank === 3) ctx.fillStyle = "#cd7f32";
-        else ctx.fillStyle = "#fff";
-
-        ctx.font = "bold 13px 'Courier New'";
-        ctx.fillText(`${rank}.`, 30, y);
-        ctx.fillText(name, 100, y);
-        ctx.textAlign = "right";
-        ctx.fillText(`${cash}$`, 560, y);
-        ctx.textAlign = "left";
-
-        y += 25;
-        if (y > 380) break;
-    }
-
-    ctx.fillStyle = "#aaa";
-    ctx.font = "10px 'Courier New'";
-    ctx.fillText(`Page ${page}/${totalPages}`, 30, 400);
-
-    const date = new Date();
-    const dateStr = `${date.getDate()}/${date.getMonth()+1}/${date.getFullYear()}`;
-    ctx.fillStyle = "#666";
-    ctx.font = "9px 'Courier New'";
-    ctx.fillText(dateStr, 500, 400);
-
-    return canvas.toBuffer();
-}
+const { createCanvas } = require('canvas');
+const fs = require('fs');
+const path = require('path');
 
 module.exports = {
-    config: {
-        name: "top",
-        version: "6.0",
-        author: "Itachi Soma",
-        role: 0,
-        shortDescription: { en: "Top richest users" },
-        longDescription: { en: "Displays the top 50 richest users with real names" },
-        category: "group",
-        guide: { en: "{pn} [page]" }
+  config: {
+    name: "top",
+    aliases: ["tp", "rich"],
+    version: "2.1",
+    author: "chris st",
+    role: 0,
+    shortDescription: {
+      fr: "Affiche le Top 15 des utilisateurs les plus riches en image."
     },
-
-    onStart: async function ({ api, args, message, event, usersData }) {
-        const allUsers = await getAllUsersCash();
-
-        if (allUsers.length === 0) {
-            return message.reply(toBold("❌ Aucune donnée trouvée."));
-        }
-
-        let page = args[0] ? parseInt(args[0]) : 1;
-        const usersPerPage = 10;
-        const totalPages = Math.ceil(Math.min(allUsers.length, 50) / usersPerPage);
-
-        if (page < 1 || page > totalPages) {
-            return message.reply(toBold(`❌ Page invalide. Il y a ${totalPages} pages disponibles.`));
-        }
-
-        const startIndex = (page - 1) * usersPerPage;
-        const endIndex = startIndex + usersPerPage;
-        let usersOnPage = allUsers.slice(startIndex, endIndex);
-
-        const enrichedUsers = [];
-        for (const user of usersOnPage) {
-            let name = null;
-
-            // 1. Essayer getUserInfo (endpoint Messenger, notre fix)
-            try {
-                const info = await api.getUserInfo(user.userId);
-                if (info && info.name && info.name !== user.userId && !info.name.startsWith("User_")) {
-                    name = info.name;
-                }
-            } catch (e) {}
-
-            // 2. Fallback : base locale usersData
-            if (!name) {
-                try {
-                    const localName = await usersData.getName(user.userId);
-                    if (localName && localName !== user.userId && localName !== "Facebook User") {
-                        name = localName;
-                    }
-                } catch (e) {}
-            }
-
-            // 3. Dernier recours : ID tronqué
-            if (!name) name = `User_${String(user.userId).slice(-5)}`;
-
-            const formattedCash = await formatNumberWithAPI(user.cash || 0);
-            enrichedUsers.push({
-                ...user,
-                name: toBold(name),
-                formattedCash
-            });
-        }
-
-        let textMsg = toBold("📝 TOP 50 - LES PLUS RICHES") + `\n━━━━━━━━━━━━━━━━━━\n`;
-        enrichedUsers.forEach((user, index) => {
-            const rank = startIndex + index + 1;
-            const prefix = rank === 1 ? "🥇" : rank === 2 ? "🥈" : rank === 3 ? "🥉" : "▸";
-            textMsg += `${prefix} ${rank}. ${user.name}: ${user.formattedCash}$\n`;
-        });
-        textMsg += `━━━━━━━━━━━━━━━━━━\n${toBold(`📜 Page ${page}/${totalPages}`)}`;
-
-        await message.reply(textMsg);
-
-        try {
-            const img = await generateTopImage(enrichedUsers, page, totalPages);
-            const imgPath = `./top_${Date.now()}.png`;
-            fs.writeFileSync(imgPath, img);
-            await message.reply({
-                body: toBold("💳 Carte du classement :"),
-                attachment: fs.createReadStream(imgPath)
-            });
-            fs.unlinkSync(imgPath);
-        } catch (error) {
-            console.error("Erreur génération image:", error);
-        }
+    longDescription: {
+      fr: "Génère un superbe classement visuel des membres ayant le plus d'argent."
+    },
+    category: "top",
+    guide: {
+      fr: "{pn}"
     }
+  },
+
+  onStart: async function ({ api, args, message, event, usersData }) {
+    // Calcul de la date et de l'heure de la mission
+    const optionsDate = { weekday: 'long', month: 'long', day: 'numeric' };
+    const dateNow = new Date().toLocaleDateString('fr-FR', optionsDate);
+    const timeNow = new Date().toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
+
+    // Fonction de formatage de l'argent
+    function formatMoney(amount) {
+      if (amount >= 1e9) return `${(amount / 1e9).toFixed(2)} B`;
+      if (amount >= 1e6) return `${(amount / 1e6).toFixed(2)} M`;
+      if (amount >= 1e3) return `${(amount / 1e3).toFixed(2)} K`;
+      return amount.toString();
+    }
+
+    try {
+      // Récupération et tri des données des utilisateurs (Top 15)
+      const allUsers = await usersData.getAll();
+      const topUsers = allUsers.sort((a, b) => (b.money || 0) - (a.money || 0)).slice(0, 15);
+
+      if (topUsers.length === 0) {
+        return message.reply("🍃 Aucun ninja n'a encore amassé de richesses dans la base de données.");
+      }
+
+      // Configuration du Canvas (Largeur: 650px, Hauteur dynamique selon le nombre d'utilisateurs)
+      const itemHeight = 50; 
+      const headerHeight = 130;
+      const footerHeight = 40;
+      const canvasWidth = 650;
+      const canvasHeight = headerHeight + (topUsers.length * itemHeight) + footerHeight;
+
+      const canvas = createCanvas(canvasWidth, canvasHeight);
+      const ctx = canvas.getContext('2d');
+
+      // 1. FOND DU CANVAS (Style Éclair Jaune / Sombre & Or)
+      ctx.fillStyle = '#111217'; // Fond sombre principal
+      ctx.fillRect(0, 0, canvasWidth, canvasHeight);
+
+      // Dégradé pour l'entête
+      const gradient = ctx.createLinearGradient(0, 0, canvasWidth, 0);
+      gradient.addColorStop(0, '#e6a100'); // Or Minato
+      gradient.addColorStop(1, '#f39c12');
+      ctx.fillStyle = gradient;
+      ctx.fillRect(0, 0, canvasWidth, headerHeight - 30);
+
+      // 2. TEXTE DE L'ENTÊTE
+      ctx.fillStyle = '#ffffff';
+      ctx.font = 'bold 28px Arial';
+      ctx.fillText('🏆 CLASSEMENT DES RICHES', 40, 55);
+
+      ctx.fillStyle = 'rgba(255, 255, 255, 0.8)';
+      ctx.font = 'italic 16px Arial';
+      ctx.fillText('Les plus grandes fortunes de Konoha', 40, 85);
+
+      // Sous-barre des catégories
+      ctx.fillStyle = '#1a1c24';
+      ctx.fillRect(0, headerHeight - 30, canvasWidth, 30);
+      
+      ctx.fillStyle = '#8e9297';
+      ctx.font = 'bold 12px Arial';
+      ctx.fillText('RANG & NOM', 40, headerHeight - 10);
+      ctx.fillText('FORTUNE', canvasWidth - 150, headerHeight - 10);
+
+      // 3. DESSIN DE LA LISTE DES UTILISATEURS
+      topUsers.forEach((user, index) => {
+        const yPos = headerHeight + (index * itemHeight);
+
+        // Alternance de couleur de fond pour les lignes
+        ctx.fillStyle = index % 2 === 0 ? '#161821' : '#111217';
+        ctx.fillRect(0, yPos, canvasWidth, itemHeight);
+
+        // Couleur selon le podium (Or, Argent, Bronze)
+        let rankColor = '#ffffff';
+        if (index === 0) rankColor = '#ffd700'; // 1er
+        else if (index === 1) rankColor = '#c0c0c0'; // 2ème
+        else if (index === 2) rankColor = '#cd7f32'; // 3ème
+
+        // Affichage du Rang
+        ctx.fillStyle = rankColor;
+        ctx.font = 'bold 18px Arial';
+        ctx.fillText(`${index + 1}.`, 35, yPos + 32);
+
+        // Affichage du Nom
+        ctx.fillStyle = '#ffffff';
+        ctx.font = index < 3 ? 'bold 16px Arial' : '16px Arial';
+        const userName = user.name || `Ninja anonyme`;
+        
+        // Sécurité pour couper le nom s'il déborde
+        const truncatedName = userName.length > 25 ? userName.substring(0, 25) + '...' : userName;
+        ctx.fillText(truncatedName, 75, yPos + 32);
+
+        // Affichage du Montant
+        ctx.fillStyle = '#00ff88'; // Vert argent
+        ctx.font = 'bold 16px Arial';
+        const moneyText = `${formatMoney(user.money || 0)} 💲`;
+        ctx.fillText(moneyText, canvasWidth - 150, yPos + 32);
+      });
+
+      // 4. BAS DE PAGE (FOOTER)
+      const footerY = canvasHeight - footerHeight;
+      ctx.fillStyle = '#1a1c24';
+      ctx.fillRect(0, footerY, canvasWidth, footerHeight);
+
+      ctx.fillStyle = '#f39c12';
+      ctx.font = 'italic 12px Arial';
+      ctx.fillText('Continuez à vous entraîner et à gagner vos missions !', 40, footerY + 25);
+
+      // 5. CRÉATION DU FICHIER IMAGE TEMPORAIRE (CACHE)
+      const buffer = canvas.toBuffer('image/png');
+      const cacheDir = path.join(__dirname, 'cache');
+      const cachePath = path.join(cacheDir, 'top_rich.png');
+
+      // Vérification et création sécurisée du dossier cache s'il manque
+      if (!fs.existsSync(cacheDir)) {
+        fs.mkdirSync(cacheDir, { recursive: true });
+      }
+
+      fs.writeFileSync(cachePath, buffer);
+
+      // Construction du bloc de texte Minato
+      const finalNotification = `🔔 𝗡𝗢𝗧𝗜𝗙𝗜𝗖𝗔𝗧𝗜𝗢𝗡 𝗧𝗢 
+ MINATO NAMIKAZE 
+━━━━━━━━━━━━━━━━━━━
+👤 𝖠𝖽𝗆𝗂𝗇/𝖮𝗐𝗇𝖾𝗋:
+• chris st
+━━━━━━━━━━━━━━━━━━━
+╭┈ ❒ 📬 | 𝗠𝗘𝗦𝗦𝗔𝗚𝗘:
+╰┈➤ ⚡ *Technique d'analyse financière !* Mon parchemin de détection vient de générer le classement visuel des fortunes de ce monde.
+━━━━━━━━━━━━━━━━━━━
+⏰ 𝗧𝗶𝗺𝗲 𝗻𝗼𝘄: ${timeNow}
+📆 𝗗𝗮𝘁𝗲 𝗻𝗼𝘄: ${dateNow}
+━━━━━━━━━━━━━━━━━━━
+ℹ️ | Rapport d'analyse financière de l'𝗔𝗗𝗠𝗜𝗡𝗕𝗢𝗧.`;
+
+      // Envoi combiné du message texte et du flux de l'image
+      return message.reply({
+        body: finalNotification,
+        attachment: fs.createReadStream(cachePath)
+      }, () => {
+        // Nettoyage automatique du fichier cache après 5 secondes
+        setTimeout(() => { 
+          if (fs.existsSync(cachePath)) fs.unlinkSync(cachePath); 
+        }, 5000);
+      });
+
+    } catch (error) {
+      console.error("Erreur lors de la création du classement Canvas :", error);
+      return message.reply("⚡ *Erreur de l'Éclair Jaune :* Impossible de dresser le parchemin visuel des richesses. Vérifie les logs de la console.");
+    }
+  }
 };
