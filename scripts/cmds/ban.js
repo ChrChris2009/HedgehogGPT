@@ -5,7 +5,7 @@ module.exports = {
 	config: {
 		name: "ban",
 		version: "1.4",
-		author: "NTKhang",
+		author: "NTKhang & Minato",
 		countDown: 5,
 		role: 1,
 		description: {
@@ -18,10 +18,10 @@ module.exports = {
 				+ "\n   {pn} check: Kiểm tra thành viên bị cấm và kick thành viên đó ra khỏi box chat"
 				+ "\n   {pn} unban [@tag|uid|link fb|reply]: Bỏ cấm thành viên khỏi box chat"
 				+ "\n   {pn} list: Xem danh sách thành viên bị cấm",
-			en: "   {pn} [@tag|uid|fb link|reply] [<reason>|leave blank if no reason]: Ban user from box chat"
-				+ "\n   {pn} check: Check banned members and kick them out of the box chat"
-				+ "\n   {pn} unban [@tag|uid|fb link|reply]: Unban user from box chat"
-				+ "\n   {pn} list: View the list of banned members"
+			en: "   {pn} [@tag|uid|fb link|reply] [<reason>]: Exclure un membre"
+				+ "\n   {pn} check: Expulser les bannis présents"
+				+ "\n   {pn} unban [@tag|uid|fb link|reply]: Réintégrer un membre"
+				+ "\n   {pn} list: Voir la liste des exclus"
 		}
 	},
 
@@ -45,22 +45,22 @@ module.exports = {
 			bannedKick: "⚠️ | %1 đã bị cấm khỏi box chat từ trước!\nUID: %2\nLý do: %3\nThời gian cấm: %4\n\nBot đã tự động kick thành viên này"
 		},
 		en: {
-			notFoundTarget: "⚠️ | Please tag the person to ban or enter uid or fb link or reply to the message of the person to ban",
-			notFoundTargetUnban: "⚠️ | Please tag the person to unban or enter uid or fb link or reply to the message of the person to unban",
-			userNotBanned: "⚠️ | The person with id %1 is not banned from this box chat",
-			unbannedSuccess: "✅ | Unbanned %1 from box chat!",
-			cantSelfBan: "⚠️ | You can't ban yourself!",
-			cantBanAdmin: "❌ | You can't ban the administrator!",
-			existedBan: "❌ | This person has been banned before!",
-			noReason: "No reason",
-			bannedSuccess: "✅ | Banned %1 from box chat!",
-			needAdmin: "⚠️ | Bot needs administrator permission to kick banned members",
-			noName: "Facebook user",
-			noData: "📑 | There are no banned members in this box chat",
-			listBanned: "📑 | List of banned members in this box chat (page %1/%2)",
-			content: "%1/ %2 (%3)\nReason: %4\nBan time: %5\n\n",
-			needAdminToKick: "⚠️ | Member %1 (%2) has been banned from box chat, but the bot does not have administrator permission to kick this member, please grant administrator permission to the bot to kick this member",
-			bannedKick: "⚠️ | %1 has been banned from box chat before!\nUID: %2\nReason: %3\nBan time: %4\n\nBot has automatically kicked this member"
+			notFoundTarget: `LNVR\n⚠️ | Cible introuvable. Mentionne le perturbateur, entre son UID/lien ou réponds à son message.\n━━━━━━━━━━━━━━━━━━━\n⚡ Minato Namikaze`,
+			notFoundTargetUnban: `LNVR\n⚠️ | Qui souhaites-tu gracier ? Mentionne-le, entre son UID/lien ou réponds à son message.\n━━━━━━━━━━━━━━━━━━━\n⚡ Minato Namikaze`,
+			userNotBanned: `LNVR\n⚠️ | L'identité %1 ne figure pas sur notre liste d'exil de ce territoire.\n━━━━━━━━━━━━━━━━━━━\n⚡ Minato Namikaze`,
+			unbannedSuccess: `🔔 𝗡𝗢𝗧𝗜𝗙𝗜𝗖𝗔𝗧𝗜𝗢𝗡 𝗧𝗢\n𝗠𝗜𝗡𝗔𝗧𝗢 𝗡𝗔𝗠𝗜𝗞𝗔𝗭𝗘\n━━━━━━━━━━━━━━━━━━━\n╭┈ ❒ ✅ | 𝗚𝗥𝗔𝗖𝗘 𝗔𝗖𝗖𝗢𝗥𝗗𝗘𝗘\n╰┈➤ %1 est de nouveau autorisé à fouler les terres de ce groupe.\n━━━━━━━━━━━━━━━━━━━\n⚡ Minato Namikaze`,
+			cantSelfBan: `LNVR\n⚠️ | Un ninja ne s'impose pas l'exil à lui-même. Tu ne peux pas te bannir.\n━━━━━━━━━━━━━━━━━━━\n⚡ Minato Namikaze`,
+			cantBanAdmin: `LNVR\n❌ | Impossible. Cet individu fait partie du conseil supérieur (Admin). Je ne peux pas le bannir.\n━━━━━━━━━━━━━━━━━━━\n⚡ Minato Namikaze`,
+			existedBan: `LNVR\n❌ | Cet individu a déjà été banni et scellé hors de ce groupe auparavant.\n━━━━━━━━━━━━━━━━━━━\n⚡ Minato Namikaze`,
+			noReason: "Aucun motif spécifié",
+			bannedSuccess: `🔔 𝗡𝗢𝗧𝗜𝗙𝗜𝗖𝗔𝗧𝗜𝗢𝗡 𝗧𝗢\n𝗠𝗜𝗡𝗔𝗧𝗢 𝗡𝗔𝗠𝗜𝗞𝗔𝗭𝗘\n━━━━━━━━━━━━━━━━━━━\n╭┈ ❒ 🛑 | 𝗦𝗘𝗡𝗧𝗘𝗡𝗖𝗘 𝗗'𝗘𝗫𝗜𝗟\n╰┈➤ %1 a été banni du groupe. Justice est faite.\n━━━━━━━━━━━━━━━━━━━\n⚡ Minato Namikaze`,
+			needAdmin: `LNVR\n⚠️ | J'ai besoin des privilèges d'administrateur du groupe pour appliquer la technique de répulsion sur le banni.\n━━━━━━━━━━━━━━━━━━━\n⚡ Minato Namikaze`,
+			noName: "Ninja Anonyme",
+			noData: `🔔 𝗡𝗢𝗧𝗜𝗙𝗜𝗖𝗔𝗧𝗜𝗢𝗡 𝗧𝗢\n𝗠𝗜𝗡𝗔𝗧𝗢 𝗡𝗔𝗠𝗜𝗞𝗔𝗭𝗘\n━━━━━━━━━━━━━━━━━━━\n╭┈ ❒ 📑 | 𝗥𝗘𝗚𝗜𝗦𝗧𝗥𝗘 𝗩𝗜𝗗𝗘\n╰┈➤ Aucun membre n'est actuellement banni de ce territoire.\n━━━━━━━━━━━━━━━━━━━\n⚡ Minato Namikaze`,
+			listBanned: `🔔 𝗡𝗢𝗧𝗜𝗙𝗜𝗖𝗔𝗧𝗜𝗢𝗡 𝗧𝗢\n𝗠𝗜𝗡𝗔𝗧𝗢 𝗡𝗔𝗠𝗜𝗞𝗔𝗭𝗘\n━━━━━━━━━━━━━━━━━━━\n📑 | 𝗥𝗘𝗚𝗜𝗦𝗧𝗥𝗘 𝗗𝗘𝗦 𝗘𝗫𝗖𝗟𝗨𝗦 (Page %1/%2)\n📢 Voici la liste des ninjas frappés d'exil :`,
+			content: "🏅 N°%1 | %2 (%3)\n✍️ Motif : %4\n📅 Date du sceau : %5\n\n",
+			needAdminToKick: `🔔 𝗡𝗢𝗧𝗜𝗙𝗜𝗖𝗔𝗧𝗜𝗢𝗡 𝗧𝗢\n𝗠𝗜𝗡𝗔𝗧𝗢 𝗡𝗔𝗠𝗜𝗞𝗔𝗭𝗘\n━━━━━━━━━━━━━━━━━━━\n╭┈ ❒ ⚠️ | 𝗕𝗔𝗥𝗥𝗜𝗘𝗥𝗘 𝗜𝗡𝗦𝗨𝗙𝗙𝗜𝗦𝗔𝗡𝗧𝗘\n╰┈➤ Le banni %1 (%2) a tenté de s'infiltrer. Attribuez-moi le rôle d'administrateur pour que je puisse l'expulser immédiatement.\n━━━━━━━━━━━━━━━━━━━\n⚡ Minato Namikaze`,
+			bannedKick: `🔔 𝗡𝗢𝗧𝗜𝗙𝗜𝗖𝗔𝗧𝗜𝗢𝗡 𝗧𝗢\n𝗠𝗜𝗡𝗔𝗧𝗢 𝗡𝗔𝗠𝗜𝗞𝗔𝗭𝗘\n━━━━━━━━━━━━━━━━━━━\n╭┈ ❒ 🛑 | 𝗜𝗡𝗧𝗥𝗨𝗦𝗜𝗢𝗡 𝗕𝗟𝗢𝗤𝗨𝗘𝗘\n╰┈➤ Le fugitif %1 a tenté de revenir !\n\n🆔 UID : %2\n✍️ Motif initial : %3\n📅 Date d'exil : %4\n\n⚡ L'Éclair Jaune a appliqué le Hiraishin : Intrus expulsé automatiquement.\n━━━━━━━━━━━━━━━━━━━\n⚡ Minato Namikaze`
 		}
 	},
 
@@ -81,12 +81,16 @@ module.exports = {
 				target = Object.keys(event.mentions)[0];
 			else if (event.messageReply?.senderID)
 				target = event.messageReply.senderID;
-			else
-				return api.sendMessage(getLang('notFoundTargetUnban'), event.threadID, event.messageID);
+			else {
+				let missingMsg = getLang('notFoundTargetUnban').replace('LNVR\n', '');
+				return api.sendMessage(missingMsg, event.threadID, event.messageID);
+			}
 
 			const index = dataBanned.findIndex(item => item.id == target);
-			if (index == -1)
-				return api.sendMessage(getLang('userNotBanned', target), event.threadID, event.messageID);
+			if (index == -1) {
+				let notBannedMsg = getLang('userNotBanned', target).replace('LNVR\n', '');
+				return api.sendMessage(notBannedMsg, event.threadID, event.messageID);
+			}
 
 			dataBanned.splice(index, 1);
 			await threadsData.set(event.threadID, dataBanned, 'data.banned_ban');
@@ -135,19 +139,27 @@ module.exports = {
 				const time = user.time;
 				msg += getLang('content', start + count, name, user.id, user.reason, time);
 			}
-			return message.reply(getLang('listBanned', page, Math.ceil(dataBanned.length / limit)) + '\n\n' + msg);
+			return message.reply(getLang('listBanned', page, Math.ceil(dataBanned.length / limit)) + '\n\n' + msg + '━━━━━━━━━━━━━━━━━━━\n⚡ Minato Namikaze');
 		}
 
-		if (!target)
-			return message.reply(getLang('notFoundTarget'));
-		if (target == senderID)
-			return message.reply(getLang('cantSelfBan'));
-		if (adminIDs.includes(target))
-			return message.reply(getLang('cantBanAdmin'));
+		if (!target) {
+			let notFoundMsg = getLang('notFoundTarget').replace('LNVR\n', '');
+			return message.reply(notFoundMsg);
+		}
+		if (target == senderID) {
+			let selfBanMsg = getLang('cantSelfBan').replace('LNVR\n', '');
+			return message.reply(selfBanMsg);
+		}
+		if (adminIDs.includes(target)) {
+			let adminBanMsg = getLang('cantBanAdmin').replace('LNVR\n', '');
+			return message.reply(adminBanMsg);
+		}
 
 		const banned = dataBanned.find(item => item.id == target);
-		if (banned)
-			return message.reply(getLang('existedBan'));
+		if (banned) {
+			let existedMsg = getLang('existedBan').replace('LNVR\n', '');
+			return message.reply(existedMsg);
+		}
 
 		const name = members[target]?.name || (await usersData.getName(target)) || getLang('noName');
 		const time = moment().tz(global.GoatBot.config.timeZone).format('HH:mm:ss DD/MM/YYYY');
@@ -166,7 +178,8 @@ module.exports = {
 						api.removeUserFromGroup(target, event.threadID);
 				}
 				else {
-					message.send(getLang('needAdmin'), (err, info) => {
+					let needAdminMsg = getLang('needAdmin').replace('LNVR\n', '');
+					message.send(needAdminMsg, (err, info) => {
 						global.GoatBot.onEvent.push({
 							messageID: info.messageID,
 							onStart: ({ event }) => {
@@ -219,3 +232,4 @@ module.exports = {
 		}
 	}
 };
+					
