@@ -2,7 +2,7 @@ module.exports = {
  config: {
   name: "spin",
   version: "4.0",
-  author: "XNIL",
+  author: "chris st",
   countDown: 5,
   role: 0,
   description: "Tourne la roue et gagne ou perds de l'argent",
